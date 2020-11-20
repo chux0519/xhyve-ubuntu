@@ -16,8 +16,8 @@ diskinfo=$(hdiutil attach tmp.iso)
 set +e
 mkdir -p boot
 mnt=$(echo "$diskinfo" | perl -ne '/(\/Volumes.*)/ and print $1')
-cp "$mnt/install/vmlinuz" boot
-cp "$mnt/install/initrd.gz" boot
+cp "$mnt/casper/vmlinuz" boot
+cp "$mnt/casper/initrd" boot
 set -e
 
 disk=$(echo "$diskinfo" |  cut -d' ' -f1)
