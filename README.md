@@ -1,41 +1,40 @@
 # macOS Ubuntu
 
-Install an Ubuntu 16.04 VM on macOS using [xhyve].
+Install an Ubuntu 20.04 VM on macOS(big sur) using [xhyve].
 
 ## Download ubuntu
 
-16.04.1 server work for author and
-16.04.5 works for me
+tested: 20.04.1
 
 ## Install xhyve
 
+build it from source(with code signing disabled, see: https://github.com/machyve/xhyve/issues/191)
+
 ```
-brew install xhyve
+$ git clone https://github.com/machyve/xhyve.git
+$ cd xhyve
+$ xcodebuild CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO
 ```
+
+if it xhyve hit `vmx_set_ctlreg: cap_field: 2 bit: 20 unspecified don't care`, use this patch: https://github.com/machyve/xhyve/pull/201
 
 ## Get booting kernel
 
 ```
-sudo ./prepare.sh ~/Downloads/ubuntu-16.04.5-server-amd64.iso
+sudo ./prepare.sh ~/Downloads/ubuntu-20.04.1-live-server-amd64.iso
 ```
 
 ## Create storage and boot to ISO
 
 ```
-sudo ./create.sh ~/Downloads/ubuntu-16.04.5-server-amd64.iso
+sudo ./create.sh ~/Downloads/ubuntu-20.04.1-live-server-amd64.iso
 ```
 
 After booting, install Ubuntu just like you normally would.
 
 Pro tip: Don't resize your terminal while you're going through the installer.
 
-When you get to this question.
-
-```
-Install the GRUB boot loader to the master boot record?
-```
-
-Make sure you say, "yes".
+Notice: Don't create any sort of LVM group to disk, and remember the root(/) mount point's partition number(probably vda2), and set it correctly in your start.sh later).
 
 ## Very important DO NOT QUIT Installation
 
@@ -60,9 +59,9 @@ In the guest, run this.
 
 ```
 cd /target/boot
-cat initrd.img-4.4.0-131-generic | nc -l -p 1234
+cat initrd.img-5.4.0-54-generic | nc -l -p 1234
 # run the host command and make sure the ip addres is right 
-cat vmlinuz-4.4.0-131-generic | nc -l -p 1234
+cat vmlinuz-5.4.0-54-generic | nc -l -p 1234
 # run the host command and make sure the ip addres is right 
 ls -al
 # check the size is correct
@@ -72,8 +71,8 @@ On the host, run this.
 
 ```
 cd boot/
-nc 192.168.64.8 1234 > initrd.img-4.4.0-131-generic
-nc 192.168.64.8 1234 > vmlinuz-4.4.0-131-generic
+nc 192.168.64.8 1234 > initrd.img-5.4.0-54-generic
+nc 192.168.64.8 1234 > vmlinuz-5.4.0-54-generic
 ls -al
 # check the size is correct
 cd ../
@@ -83,7 +82,7 @@ Now, you can `exit` the shell and finish the installation.
 
 ## Modify the start.sh
 
-If the file change e.g. under 16.04.1 it is 4.4.0.31 but 16.04.5, you have modify the start.sh to say it is now 4.4.0.131
+check the `initrd.img` and `vmlinuz` version, and the root partition number.
 
 ## Start your new OS
 
